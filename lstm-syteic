@@ -1,0 +1,97 @@
+import numpy as np
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, TensorDataset
+from sklearn.cluster import KMeans
+from sklearn.metrics import accuracy_score, classification_report
+from scipy.optimize import linear_sum_assignment
+from sklearn.preprocessing import StandardScaler
+
+# === Load Data ===
+sequences = np.load("synthetic_supervised_sequences.npy")  # shape: (N, 50, 6)
+labels = np.load("synthetic_supervised_labels.npy")         # shape: (N,)
+
+# Normalize features
+scaler = StandardScaler()
+N, T, F = sequences.shape
+sequences_flat = sequences.reshape(-1, F)
+sequences_scaled = scaler.fit_transform(sequences_flat).reshape(N, T, F)
+
+# === PyTorch Dataset ===
+X = torch.tensor(sequences_scaled, dtype=torch.float32)
+y = torch.tensor(labels, dtype=torch.long)
+dataset = TensorDataset(X, y)
+loader = DataLoader(dataset, batch_size=64, shuffle=True)
+
+# === LSTM Autoencoder ===
+class LSTMAutoencoder(nn.Module):
+    def __init__(self, input_dim=6, latent_dim=32, hidden_dim=64):
+        super().__init__()
+        self.encoder_lstm = nn.LSTM(input_dim, hidden_dim, batch_first=True)
+        self.latent_fc = nn.Linear(hidden_dim, latent_dim)
+
+        self.decoder_fc = nn.Linear(latent_dim, hidden_dim)
+        self.decoder_lstm = nn.LSTM(hidden_dim, input_dim, batch_first=True)
+
+    def forward(self, x):
+        _, (h, _) = self.encoder_lstm(x)
+        latent = self.latent_fc(h[-1])
+        repeated = self.decoder_fc(latent).unsqueeze(1).repeat(1, x.size(1), 1)
+        output, _ = self.decoder_lstm(repeated)
+        return output, latent
+
+model = LSTMAutoencoder()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+criterion = nn.MSELoss()
+
+# === Training ===
+print("Training LSTM Autoencoder...")
+for epoch in range(20):
+    model.train()
+    total_loss = 0
+    for xb, _ in loader:
+        recon, _ = model(xb)
+        loss = criterion(recon, xb)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        total_loss += loss.item()
+    print(f"Epoch {epoch+1} | Loss: {total_loss / len(loader):.4f}")
+
+# === Get Latent Representations ===
+print("Encoding sequences...")
+model.eval()
+with torch.no_grad():
+    all_latents = []
+    for xb, _ in DataLoader(dataset, batch_size=128):
+        _, latent = model(xb)
+        all_latents.append(latent)
+    latents = torch.cat(all_latents, dim=0).cpu().numpy()
+
+# === KMeans Clustering ===
+print("Clustering...")
+kmeans = KMeans(n_clusters=5, random_state=42)
+cluster_preds = kmeans.fit_predict(latents)
+
+# === Hungarian Matching ===
+def match_clusters(true_labels, cluster_preds):
+    num_classes = len(np.unique(true_labels))
+    cost_matrix = np.zeros((num_classes, num_classes))
+    for i in range(num_classes):
+        for j in range(num_classes):
+            matches = np.sum((true_labels == i) & (cluster_preds == j))
+            cost_matrix[i, j] = -matches  # negative for maximization
+
+    row_ind, col_ind = linear_sum_assignment(cost_matrix)
+    mapping = dict(zip(col_ind, row_ind))
+    mapped_preds = np.array([mapping[p] for p in cluster_preds])
+    return mapped_preds
+
+mapped_preds = match_clusters(labels, cluster_preds)
+
+# === Evaluation ===
+print("\n=== Evaluation ===")
+acc = accuracy_score(labels, mapped_preds)
+print(f"Clustering Accuracy: {acc:.4f}")
+print("Classification Report:")
+print(classification_report(labels, mapped_preds, target_names=["Runner", "Magician", "Aggressor", "Explorer", "Balanced"]))
