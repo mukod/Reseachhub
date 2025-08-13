@@ -14,18 +14,6 @@ Acquired two datasets:
 
 Studied dataset structures and folder organization to understand event encoding and session structure.
 
-Mapped out research goals and model comparison strategy:
-
-LSTM Autoencoder
-
-Variational Autoencoder (VAE)
-
-LSTM-VAE
-
-Transformer-based Autoencoder
-
-
-
 
 ---
 
