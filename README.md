@@ -77,12 +77,12 @@ Established an evaluation pipeline that will be reused for all four models for f
 
 **CSV sample of raw datasets:**
 **CSV sample of raw  mario dataset:**
-![CSV Sample](assets/csv_sample.png)
+![CSV Sample](MarioPCGStudy/AnonymizedDirectory/0037499/csv_sample.png)
 **CSV sample of raw Runebound dataset:**
 ![CSV Sample](runebound/csv_sample.png)
 
 **CSV sample of processed Mario dataset:**
-![CSV Sample](assets/csv_sample.png)
+![CSV Sample](MarioPCGStudy/csv_sample_489_499.png)
 
 
 
