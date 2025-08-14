@@ -85,8 +85,7 @@ Established an evaluation pipeline that will be reused for all four models for f
 ![CSV Sample](MarioPCGStudy/csv_sample_489_499.png)
 
 
-
-
+![CSV Sample](latent_space_visualizations.png)
 
 ---
 
