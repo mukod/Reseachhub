@@ -95,4 +95,22 @@ Implement VAE, LSTM-VAE, and Transformer-based Autoencoder.
 
 Train and evaluate all models on both Mario and Runebound Depths datasets.
 
+
 Compare clustering quality, reconstruction accuracy, and latent space structure.
+
+# Week 4 – RuneboundDepths Environment & Agent Training
+
+### Progress
+- Implemented `RuneboundDepthsEnv`, a 2D grid dungeon with random enemies, coins, and powerups.
+- Discrete actions: Up, Down, Left, Right, Attack, Use Powerup, Wait (Jump removed to avoid repetitive jumping).
+- Combat: `ACT_ATTACK` hits adjacent enemies; kills give rewards, misses incur small penalties.
+- Reward shaping is playstyle-specific: `RUNNER`, `EXPLORER`, `MAGICIAN`, `AGGRESSOR`.
+- Enemies move probabilistically; contact reduces player HP unless invulnerable.
+- Trained PPO agents for each playstyle using `train_agents.py`.
+- Collected episodes and feature sequences with `collect_trajectories.py`.
+- **Pygame visualization** set up to observe agent movement, combat, and item collection.
+
+### Next Steps
+- Enhance Pygame visuals.
+- Fine-tune reward weights.
+- Analyze trajectories to improve playstyle policies.
