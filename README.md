@@ -100,7 +100,8 @@ Compare clustering quality, reconstruction accuracy, and latent space structure.
 
 # Week 4 -5 Progress Report
 
-## 📌 Pivot from Synthetic Dataset to Reinforcement Learning
+## 📌 I shifted from probability-based synthetic dataset generation to reinforcement learning–driven synthetic datasets.
+
 This week I made a major pivot in the project direction.  
 Instead of continuing with the **supervised synthetic dataset**, I took advice and shifted to a **reinforcement learning (RL)** approach.  
 RL aligns much better with the problem: training agents to learn behaviors dynamically in an environment rather than fitting on pre-labeled data.
