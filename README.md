@@ -1,3 +1,9 @@
+The scripts
+MarioPCGStudy\AnonymizedDirectory\mario_trajectory_generation.py
+and
+MarioPCGStudy\AnonymizedDirectory\mario_trajs_to_npy.py
+are responsible for generating the Mario_trajs.npy file from the raw Mario dataset. This .npy file is then used for training and clustering with the models.
+
 
 📅 Progress Log (First 3 Weeks)
 
